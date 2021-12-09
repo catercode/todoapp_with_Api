@@ -16,50 +16,52 @@ class TodoHome extends StatefulWidget {
 }
 
 class _TodoHomeState extends State<TodoHome> {
-  String loadtodo = 'Todo';
-  final List<Map<String, dynamic>> _completed = [];
-  final List<Map<String, dynamic>> _uncompleted = [];
-  final List<Map<String, dynamic>> _data = [
+  List<Map<String, dynamic>> _completed = [];
+  List<Map<String, dynamic>> uncompleted = [];
+  List<Map<String, dynamic>> data = [
     {
       'title': 'Trip to Space',
-      'description': 'This trip will last a week',
-      'date_time': 'Tomorrow',
+      'description':
+          'This trip will last a week, and I intend going with you guys',
+      'dateTime': 'Tomorrow',
       'status': false,
     },
     {
-      'title': 'Trip to USA',
-      'description': 'I will spend it with me family',
-      'date_time': 'Today',
+      'title': 'Trip to Dubai',
+      'description':
+          'This trip will last a month, and I intend going with you guys and my mom ',
+      'dateTime': 'Today',
+      'status': false,
+    },
+    {
+      'title': 'Buy a Car',
+      'description':
+          'After trip I intend to buy 2022 latest Model S car in tesla company',
+      'dateTime': '01/01/2022',
+      'status': false,
+    },
+    {
+      'title': 'Lunch Kenkey',
+      'description':
+          'I want to take kenkey as lunch to day at 12:30 PM in ivalley Ghana',
+      'dateTime': 'Today',
       'status': true,
     },
-    {
-      'title': 'Order for Car',
-      'description': 'I want to buy a car this month',
-      'date_time': '20/12/2021',
-      'status': false,
-    }
   ];
-
   void initState() {
-    for (Map<String, dynamic> element in _data) {
+    for (Map<String, dynamic> element in data) {
       if (element['status']) {
         _completed.add(element);
-        print(element);
       } else {
-        _uncompleted.add(element);
-        print(element);
+        uncompleted.add(element);
       }
     }
-    try {
-      Timer(const Duration(seconds: 10), () {
-        callback();
-      });
-    } catch (e) {
-      print(e);
-    }
+    Timer(const Duration(seconds: 10), () => callback());
+
     super.initState();
   }
 
+  String isloaded = 'Todo';
   int count = 0;
   bool iscomplete = false;
   void callback() {
@@ -85,40 +87,36 @@ class _TodoHomeState extends State<TodoHome> {
         ),
         actions: [
           CircleAvatar(
-            backgroundColor: Colors.white,
             radius: 10,
-            child: Text(
-              ' ${_completed.length}',
-            ),
+            backgroundColor: Colors.amber,
+            child: Text('${uncompleted.length}'),
           ),
           const SizedBox(
             width: 20,
           ),
           PopupMenuButton<String>(
-              icon: const Icon(Icons.menu),
               onSelected: (value) {
                 setState(() {
-                  if (loadtodo == 'Todo') {
-                    loadtodo = value;
-                    print(value);
+                  if (isloaded == 'Todo') {
+                    isloaded = value;
                   } else {
-                    loadtodo = value;
-                    print(value);
+                    isloaded = value;
                   }
                 });
               },
               itemBuilder: (context) {
-                return const [
-                  PopupMenuItem(
+                return [
+                  const PopupMenuItem(
                     child: Text('Todo'),
                     value: 'Todo',
                   ),
-                  PopupMenuItem(
-                    child: Text('Complete'),
-                    value: 'Complete',
+                  const PopupMenuItem(
+                    child: Text('Completed'),
+                    value: 'Completed',
                   )
                 ];
-              }),
+              },
+              child: const Icon(Icons.menu)),
           const SizedBox(
             width: 20,
           ),
@@ -139,29 +137,28 @@ class _TodoHomeState extends State<TodoHome> {
                         title: '',
                         description: '',
                         dateTime: '',
-                        status: false),
-                  )
+                        status: false))
                 : Todo_Tile_Widget(
-                    title: loadtodo == 'Todo'
-                        ? _completed[index]['title']
-                        : _uncompleted[index]['title'],
-                    description: loadtodo == 'Todo'
-                        ? _completed[index]['description']
-                        : _uncompleted[index]['description'],
-                    dateTime: loadtodo == 'Todo'
-                        ? _completed[index]['date_time']
-                        : _uncompleted[index]['date_time'],
-                    status: loadtodo == 'Todo'
-                        ? _completed[index]['status']
-                        : _uncompleted[index]['status']);
+                    title: isloaded == 'Todo'
+                        ? uncompleted[index]['title']
+                        : _completed[index]['title'],
+                    description: isloaded == 'Todo'
+                        ? uncompleted[index]['description']
+                        : _completed[index]['description'],
+                    dateTime: isloaded == 'Todo'
+                        ? uncompleted[index]['dateTime']
+                        : _completed[index]['dateTime'],
+                    status: isloaded == 'Todo'
+                        ? uncompleted[index]['status']
+                        : _completed[index]['status'],
+                  );
           },
           separatorBuilder: (context, index) {
             return const SizedBox(
               height: 5,
             );
           },
-          itemCount:
-              loadtodo == 'Todo' ? _completed.length : _uncompleted.length),
+          itemCount: uncompleted.length),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(context, MaterialPageRoute(builder: (context) {
@@ -180,17 +177,18 @@ class _TodoHomeState extends State<TodoHome> {
                   return ListView.separated(
                       itemBuilder: (context, index) {
                         return Todo_Tile_Widget(
-                            title: _uncompleted[index]['title'],
-                            description: _uncompleted[index]['description'],
-                            dateTime: _uncompleted[index]['date_time'],
-                            status: _uncompleted[index]['status']);
+                          title: _completed[index]['title'],
+                          description: _completed[index]['description'],
+                          dateTime: _completed[index]['dateTime'],
+                          status: _completed[index]['status'],
+                        );
                       },
                       separatorBuilder: (context, index) {
                         return const SizedBox(
                           height: 5,
                         );
                       },
-                      itemCount: _uncompleted.length);
+                      itemCount: _completed.length);
                 });
           },
           child: Padding(
@@ -224,7 +222,7 @@ class _TodoHomeState extends State<TodoHome> {
                     ),
                     const Spacer(),
                     Text(
-                      ' ${_uncompleted.length}',
+                      ' ${_completed.length}',
                       style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,

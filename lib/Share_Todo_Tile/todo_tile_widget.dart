@@ -1,21 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:skeleton_text/skeleton_text.dart';
+
 import '../utils.dart';
 
-class Todo_Tile_Widget extends StatelessWidget {
-  Todo_Tile_Widget(
-      {Key? key,
-      required this.title,
-      required this.description,
-      required this.dateTime,
-      required this.status})
-      : super(key: key);
+class Todo_Tile_Widget extends StatefulWidget {
+  Todo_Tile_Widget({
+    Key? key,
+    required this.title,
+    required this.description,
+    required this.dateTime,
+    required this.status,
+  }) : super(key: key);
   final String title;
   final String description;
   final String dateTime;
   final bool status;
-  bool iscomplete = false;
 
+  @override
+  State<Todo_Tile_Widget> createState() => _Todo_Tile_WidgetState();
+}
+
+class _Todo_Tile_WidgetState extends State<Todo_Tile_Widget> {
+  bool ischecked = false;
+
+  @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -26,21 +34,19 @@ class Todo_Tile_Widget extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 child: InkWell(
                   onTap: () {
-                    // setState(() {
-                    //   if (iscomplete == false) {
-                    //     iscomplete = true;
-                    //     print(iscomplete);
-                    //   } else {
-                    //     iscomplete = false;
-                    //     print(iscomplete);
-                    //   }
-                    // });
+                    setState(() {
+                      if (ischecked == false) {
+                        ischecked = true;
+                      } else {
+                        ischecked = false;
+                      }
+                    });
                   },
                   child: Icon(
-                    status
-                        ? Icons.check_circle_outline
-                        : Icons.check_circle_rounded,
-                    color: customColor(date: dateTime),
+                    widget.status
+                        ? Icons.check_circle_rounded
+                        : Icons.check_circle_outline,
+                    color: customColor(date: widget.dateTime),
                   ),
                 )),
             Expanded(
@@ -52,14 +58,14 @@ class Todo_Tile_Widget extends StatelessWidget {
                     height: 10,
                   ),
                   Text(
-                    title,
+                    widget.title,
                     style: TextStyle(
-                        color: customColor(date: 'appbarColor'),
+                        color: customColor(date: widget.dateTime),
                         fontSize: 20.0,
                         fontWeight: FontWeight.w900),
                   ),
                   Text(
-                    description,
+                    widget.description,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -76,12 +82,12 @@ class Todo_Tile_Widget extends StatelessWidget {
                   Icon(
                     Icons.notifications,
                     size: 16.0,
-                    color: customColor(date: dateTime),
+                    color: customColor(date: widget.dateTime),
                   ),
                   Text(
-                    dateTime,
+                    widget.dateTime,
                     style: TextStyle(
-                      color: customColor(date: dateTime),
+                      color: customColor(date: widget.dateTime),
                     ),
                   ),
                 ],
