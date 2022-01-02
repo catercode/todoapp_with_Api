@@ -1,9 +1,10 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:todoapp/Share_Todo_Tile/complete_share_widget.dart';
 import 'package:todoapp/Share_Todo_Tile/todo_tile_widget.dart';
+import 'package:todoapp/controller/todo_controller.dart';
 import 'package:todoapp/create_todo.dart';
+import 'package:todoapp/model/todo_model.dart';
 
 import 'package:todoapp/utils.dart';
 import 'package:skeleton_text/skeleton_text.dart';
@@ -16,59 +17,13 @@ class TodoHome extends StatefulWidget {
 }
 
 class _TodoHomeState extends State<TodoHome> {
-  List<Map<String, dynamic>> _completed = [];
-  List<Map<String, dynamic>> uncompleted = [];
-  List<Map<String, dynamic>> data = [
-    {
-      'title': 'Trip to Space',
-      'description':
-          'This trip will last a week, and I intend going with you guys',
-      'dateTime': 'Tomorrow',
-      'status': false,
-    },
-    {
-      'title': 'Trip to Dubai',
-      'description':
-          'This trip will last a month, and I intend going with you guys and my mom ',
-      'dateTime': 'Today',
-      'status': false,
-    },
-    {
-      'title': 'Buy a Car',
-      'description':
-          'After trip I intend to buy 2022 latest Model S car in tesla company',
-      'dateTime': '01/01/2022',
-      'status': false,
-    },
-    {
-      'title': 'Lunch Kenkey',
-      'description':
-          'I want to take kenkey as lunch to day at 12:30 PM in ivalley Ghana',
-      'dateTime': 'Today',
-      'status': true,
-    },
-  ];
-  void initState() {
-    for (Map<String, dynamic> element in data) {
-      if (element['status']) {
-        _completed.add(element);
-      } else {
-        uncompleted.add(element);
-      }
-    }
-    Timer(const Duration(seconds: 10), () => callback());
+  final _todoController = todoController();
+  late Future<List<Todo>> futureTodo;
+  var _todo;
 
-    super.initState();
-  }
-
+  @override
+  int value = 1;
   String isloaded = 'Todo';
-  int count = 0;
-  bool iscomplete = false;
-  void callback() {
-    setState(() {
-      count = count = 1;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -86,10 +41,10 @@ class _TodoHomeState extends State<TodoHome> {
           'My Task',
         ),
         actions: [
-          CircleAvatar(
+          const CircleAvatar(
             radius: 10,
             backgroundColor: Colors.amber,
-            child: Text('${uncompleted.length}'),
+            child: Text('2'),
           ),
           const SizedBox(
             width: 20,
@@ -126,39 +81,35 @@ class _TodoHomeState extends State<TodoHome> {
           )
         ],
       ),
-      body: ListView.separated(
-          itemBuilder: (context, index) {
-            return count == 0
-                ? SkeletonAnimation(
-                    shimmerColor: customColor(date: 'appbarColor'),
-                    borderRadius: BorderRadius.circular(20),
-                    shimmerDuration: 1000,
-                    child: Todo_Tile_Widget(
-                        title: '',
-                        description: '',
-                        dateTime: '',
-                        status: false))
-                : Todo_Tile_Widget(
-                    title: isloaded == 'Todo'
-                        ? uncompleted[index]['title']
-                        : _completed[index]['title'],
-                    description: isloaded == 'Todo'
-                        ? uncompleted[index]['description']
-                        : _completed[index]['description'],
-                    dateTime: isloaded == 'Todo'
-                        ? uncompleted[index]['dateTime']
-                        : _completed[index]['dateTime'],
-                    status: isloaded == 'Todo'
-                        ? uncompleted[index]['status']
-                        : _completed[index]['status'],
-                  );
-          },
-          separatorBuilder: (context, index) {
-            return const SizedBox(
-              height: 5,
+      body: FutureBuilder<List<Todo>>(
+        future: _todoController.fetchTodo(false),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting &&
+              snapshot.data == null) {
+            return const Center(
+              child: CircularProgressIndicator(),
             );
-          },
-          itemCount: uncompleted.length),
+          }
+          if (snapshot.connectionState == ConnectionState.done &&
+              snapshot.data == null) {
+            return const Text(
+              'Something went wrong',
+              style: TextStyle(fontSize: 30),
+            );
+          }
+          return ListView.builder(
+            itemBuilder: (context, index) {
+              _todo = snapshot.data![index];
+
+              return Todo_Tile_Widget(
+                  title: _todo.title,
+                  description: _todo.description,
+                  dateTime: _todo.dateTime);
+            },
+            itemCount: snapshot.data!.length,
+          );
+        },
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(context, MaterialPageRoute(builder: (context) {
@@ -174,21 +125,7 @@ class _TodoHomeState extends State<TodoHome> {
             showBarModalBottomSheet(
                 context: context,
                 builder: (context) {
-                  return ListView.separated(
-                      itemBuilder: (context, index) {
-                        return Todo_Tile_Widget(
-                          title: _completed[index]['title'],
-                          description: _completed[index]['description'],
-                          dateTime: _completed[index]['dateTime'],
-                          status: _completed[index]['status'],
-                        );
-                      },
-                      separatorBuilder: (context, index) {
-                        return const SizedBox(
-                          height: 5,
-                        );
-                      },
-                      itemCount: _completed.length);
+                  return const completeTodoWidget();
                 });
           },
           child: Padding(
@@ -204,15 +141,15 @@ class _TodoHomeState extends State<TodoHome> {
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Row(
-                  children: [
-                    const Icon(
+                  children: const [
+                    Icon(
                       Icons.check_circle_rounded,
                       color: Colors.white,
                     ),
-                    const SizedBox(
+                    SizedBox(
                       width: 10,
                     ),
-                    const Text(
+                    Text(
                       'Complete',
                       style: TextStyle(
                         fontWeight: FontWeight.w700,
@@ -220,10 +157,10 @@ class _TodoHomeState extends State<TodoHome> {
                         fontSize: 20,
                       ),
                     ),
-                    const Spacer(),
+                    Spacer(),
                     Text(
-                      ' ${_completed.length}',
-                      style: const TextStyle(
+                      '2',
+                      style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
                           fontSize: 18),

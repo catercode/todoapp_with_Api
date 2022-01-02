@@ -1,20 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:skeleton_text/skeleton_text.dart';
+import 'package:todoapp/model/todo_model.dart';
 
 import '../utils.dart';
 
 class Todo_Tile_Widget extends StatefulWidget {
   Todo_Tile_Widget({
     Key? key,
+   // required this.todo,
     required this.title,
     required this.description,
     required this.dateTime,
-    required this.status,
+   // required this.completed
   }) : super(key: key);
+ // final Todo todo;
+  bool status = false;
   final String title;
   final String description;
   final String dateTime;
-  final bool status;
+ // final String completed;
 
   @override
   State<Todo_Tile_Widget> createState() => _Todo_Tile_WidgetState();
@@ -46,7 +50,7 @@ class _Todo_Tile_WidgetState extends State<Todo_Tile_Widget> {
                     widget.status
                         ? Icons.check_circle_rounded
                         : Icons.check_circle_outline,
-                    color: customColor(date: widget.dateTime),
+                    color: customColor(date: "Today"),
                   ),
                 )),
             Expanded(
@@ -58,9 +62,9 @@ class _Todo_Tile_WidgetState extends State<Todo_Tile_Widget> {
                     height: 10,
                   ),
                   Text(
-                    widget.title,
+                   widget.title,
                     style: TextStyle(
-                        color: customColor(date: widget.dateTime),
+                        color: customColor(date: "Today"),
                         fontSize: 20.0,
                         fontWeight: FontWeight.w900),
                   ),
@@ -82,12 +86,12 @@ class _Todo_Tile_WidgetState extends State<Todo_Tile_Widget> {
                   Icon(
                     Icons.notifications,
                     size: 16.0,
-                    color: customColor(date: widget.dateTime),
+                    color: customColor(date: "Today"),
                   ),
                   Text(
-                    widget.dateTime,
+                     widget.dateTime,
                     style: TextStyle(
-                      color: customColor(date: widget.dateTime),
+                      color: customColor(date: "Today"),
                     ),
                   ),
                 ],
