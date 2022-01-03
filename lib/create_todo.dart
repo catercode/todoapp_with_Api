@@ -1,15 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:todoapp/controller/todo_controller.dart';
+import 'package:todoapp/model/todo_model.dart';
 import 'package:todoapp/utils.dart';
 
-class CreateTodo extends StatelessWidget {
+class CreateTodo extends StatefulWidget {
   CreateTodo({Key? key}) : super(key: key);
+
+  @override
+  State<CreateTodo> createState() => _CreateTodoState();
+}
+
+class _CreateTodoState extends State<CreateTodo> {
   final _controllerTitle = TextEditingController();
+
   final _controllerDescription = TextEditingController();
+
   final _controllerDate = TextEditingController();
+
   final _controllerTime = TextEditingController();
 
+  final _todocontroller = todoController();
+
   final GlobalKey<FormState> _formkey = GlobalKey();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -133,7 +147,6 @@ class CreateTodo extends StatelessWidget {
                   ),
                   Expanded(
                     child: TextFormField(
-                     
                       controller: _controllerTime,
                       maxLines: 1,
                       onTap: () {
@@ -168,13 +181,38 @@ class CreateTodo extends StatelessWidget {
             ElevatedButton(
               style: TextButton.styleFrom(
                   backgroundColor: customColor(date: 'appbarColor')),
-              onPressed: () {
+              onPressed: () async {
                 if (_formkey.currentState!.validate()) {
-                  print('Successful');
-                  print(_controllerTitle.text);
-                  print(_controllerDescription.text);
-                  print(_controllerDate.text);
-                  print(_controllerTime.text);
+                  var isCompleted = 'false';
+                  var myDataTime =
+                      _controllerDate.text + "" + _controllerTime.text;
+                  bool _successful = await _todocontroller.createTodo(
+                      title: _controllerTitle.text,
+                      description: _controllerDescription.text,
+                      dateTime: myDataTime,
+                      completed: isCompleted);
+                  if (_successful) {
+                    _controllerTitle.clear();
+                    _controllerDescription.clear();
+                    _controllerTime.clear();
+                    _controllerDate.clear();
+                    SnackBar snackBar = const SnackBar(
+                      content: Text('Todo created!',
+                          style: TextStyle(
+                            color: Colors.green,
+                          )),
+                    );
+                  
+                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                  } else {
+                    SnackBar snackBar = const SnackBar(
+                      content: Text('Failed to create Todo!',
+                          style: TextStyle(
+                            color: Colors.red,
+                          )),
+                    );
+                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                  }
                 }
               },
               child: const Text(
