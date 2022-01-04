@@ -56,18 +56,20 @@ class todoController {
 
   //   return TodLi
 //update data from database
-  Future<bool> updatetodo(bool completed) async {
+  Future<bool> updatetodo({required bool completed, required String id}) async {
     bool isSucessfull = false;
+     Map<String, bool> body = {"completed": true};
+     Map<String, String> header = {
+       'Content-Type': 'application/json'
+       };
     final response = await http.put(
-        Uri.parse('https://secondbasetodo.herokuapp.com/todo/$completed'),
-        headers: <String, String>{
-          'Content_Type': 'application/json; charset=UTF-8',
-        },
-        body: jsonEncode(<String, bool>{
-          'completed': completed,
-        }));
+      Uri.parse('https://secondbasetodo.herokuapp.com/todo/$id'),
+      body: jsonEncode(body),headers:header);
+
     if (response.statusCode == 200) {
       isSucessfull = true;
+      print(response.body);
+      print(isSucessfull);
     } else {
       isSucessfull = false;
     }

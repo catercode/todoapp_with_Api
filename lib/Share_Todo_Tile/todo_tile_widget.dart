@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:skeleton_text/skeleton_text.dart';
+import 'package:todoapp/controller/todo_controller.dart';
 import 'package:todoapp/model/todo_model.dart';
 
 import '../utils.dart';
@@ -7,18 +8,19 @@ import '../utils.dart';
 class Todo_Tile_Widget extends StatefulWidget {
   Todo_Tile_Widget({
     Key? key,
-   // required this.todo,
+    required this.id,
     required this.title,
     required this.description,
     required this.dateTime,
-   // required this.completed
+    // required this.completed
   }) : super(key: key);
- // final Todo todo;
+  // final Todo todo;
   bool status = false;
+  final String id;
   final String title;
   final String description;
   final String dateTime;
- // final String completed;
+  // final String completed;
 
   @override
   State<Todo_Tile_Widget> createState() => _Todo_Tile_WidgetState();
@@ -26,7 +28,7 @@ class Todo_Tile_Widget extends StatefulWidget {
 
 class _Todo_Tile_WidgetState extends State<Todo_Tile_Widget> {
   bool ischecked = false;
-
+  final _todocontroller = todoController();
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -37,17 +39,42 @@ class _Todo_Tile_WidgetState extends State<Todo_Tile_Widget> {
             Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 child: InkWell(
-                  onTap: () {
+                  onTap: () async {
                     setState(() {
                       if (ischecked == false) {
                         ischecked = true;
+                        // print(ischecked);
                       } else {
                         ischecked = false;
+                        //   print(ischecked);
+                        //   _todocontroller.updatetodo(ischecked);
                       }
                     });
+                    bool isUpdate =
+                        await _todocontroller.updatetodo(completed: ischecked, id:widget.id);
+                    if (isUpdate) {
+                      // print(widget.id);
+                      SnackBar snackBar = const SnackBar(
+                        content: Text('Todo updated!',
+                            style: TextStyle(
+                              color: Colors.green,
+                            )),
+                      );
+
+                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                    } else {
+                      SnackBar snackBar = const SnackBar(
+                        content: Text('Todo update failed!',
+                            style: TextStyle(
+                              color: Colors.red,
+                            )),
+                      );
+
+                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                    }
                   },
                   child: Icon(
-                    widget.status
+                    ischecked
                         ? Icons.check_circle_rounded
                         : Icons.check_circle_outline,
                     color: customColor(date: "Today"),
@@ -62,7 +89,7 @@ class _Todo_Tile_WidgetState extends State<Todo_Tile_Widget> {
                     height: 10,
                   ),
                   Text(
-                   widget.title,
+                    widget.title,
                     style: TextStyle(
                         color: customColor(date: "Today"),
                         fontSize: 20.0,
@@ -89,7 +116,7 @@ class _Todo_Tile_WidgetState extends State<Todo_Tile_Widget> {
                     color: customColor(date: "Today"),
                   ),
                   Text(
-                     widget.dateTime,
+                    widget.dateTime,
                     style: TextStyle(
                       color: customColor(date: "Today"),
                     ),

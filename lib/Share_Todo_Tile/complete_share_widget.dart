@@ -42,6 +42,7 @@ class _completeTodoWidgetState extends State<completeTodoWidget> {
             itemBuilder: (context, index) {
               var compTodo = snapshot.data![index];
               return Todo_Tile_Widget(
+                  id:compTodo.id ,
                   title: compTodo.title,
                   description: compTodo.description,
                   dateTime: compTodo.dateTime);

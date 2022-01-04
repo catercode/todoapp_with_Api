@@ -102,6 +102,7 @@ class _TodoHomeState extends State<TodoHome> {
               _todo = snapshot.data![index];
 
               return Todo_Tile_Widget(
+                  id: _todo.id,
                   title: _todo.title,
                   description: _todo.description,
                   dateTime: _todo.dateTime);
