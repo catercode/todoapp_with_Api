@@ -81,35 +81,57 @@ class _TodoHomeState extends State<TodoHome> {
           )
         ],
       ),
-      body: FutureBuilder<List<Todo>>(
-        future: _todoController.fetchTodo(false),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting &&
-              snapshot.data == null) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-          if (snapshot.connectionState == ConnectionState.done &&
-              snapshot.data == null) {
-            return const Text(
-              'Something went wrong',
-              style: TextStyle(fontSize: 30),
-            );
-          }
-          return ListView.builder(
-            itemBuilder: (context, index) {
-              _todo = snapshot.data![index];
+      body: RefreshIndicator(
+        onRefresh: _refreshHandler,
+        child: FutureBuilder<List<Todo>>(
+          future: _todoController.fetchTodo(false),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting &&
+                snapshot.data == null) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+            if (snapshot.connectionState == ConnectionState.done &&
+                snapshot.data == null) {
+              return const Text(
+                'Something went wrong',
+                style: TextStyle(fontSize: 30),
+              );
+            }
+            return ListView.builder(
+              itemBuilder: (context, index) {
+                _todo = snapshot.data![index];
+                return Dismissible(
+                  key: UniqueKey(),
+                  confirmDismiss: (dismissedDirection) async {
+                    if (dismissedDirection == DismissDirection.endToStart) {
+                      await _todoController.updatetodo(
+                          completed: true, id: snapshot.data![index].id);
+                    }
+                    SnackBar snackBar = const SnackBar(
+                        content: Text('Activity completed congrats',
+                            style: TextStyle(
+                              color: Colors.green,
+                            )));
 
-              return Todo_Tile_Widget(
-                  id: _todo.id,
-                  title: _todo.title,
-                  description: _todo.description,
-                  dateTime: _todo.dateTime);
-            },
-            itemCount: snapshot.data!.length,
-          );
-        },
+                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                    setState(() {
+                      _todoController.fetchTodo(false);
+                    });
+                  },
+                  child: Todo_Tile_Widget(
+                      completed: false,
+                      id: _todo.id,
+                      title: _todo.title,
+                      description: _todo.description,
+                      dateTime: _todo.dateTime),
+                );
+              },
+              itemCount: snapshot.data!.length,
+            );
+          },
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -174,5 +196,12 @@ class _TodoHomeState extends State<TodoHome> {
         ),
       ),
     );
+  }
+
+  Future<Null> _refreshHandler() async {
+    await Future.delayed(const Duration(seconds: 3));
+    setState(() {
+      _todoController.fetchTodo(false);
+    });
   }
 }

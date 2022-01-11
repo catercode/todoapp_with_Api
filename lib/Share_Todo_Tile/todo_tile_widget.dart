@@ -8,6 +8,7 @@ import '../utils.dart';
 class Todo_Tile_Widget extends StatefulWidget {
   Todo_Tile_Widget({
     Key? key,
+    required this.completed,
     required this.id,
     required this.title,
     required this.description,
@@ -16,6 +17,7 @@ class Todo_Tile_Widget extends StatefulWidget {
   }) : super(key: key);
   // final Todo todo;
   bool status = false;
+  final bool completed;
   final String id;
   final String title;
   final String description;
@@ -41,17 +43,19 @@ class _Todo_Tile_WidgetState extends State<Todo_Tile_Widget> {
                 child: InkWell(
                   onTap: () async {
                     setState(() {
-                      if (ischecked == false) {
-                        ischecked = true;
+                      if (widget.completed == false) {
+                       // ischecked = true;
+                        widget.completed == true;
                         // print(ischecked);
                       } else {
-                        ischecked = false;
+                        //ischecked = false;
+                         widget.completed == false;
                         //   print(ischecked);
                         //   _todocontroller.updatetodo(ischecked);
                       }
                     });
-                    bool isUpdate =
-                        await _todocontroller.updatetodo(completed: ischecked, id:widget.id);
+                    bool isUpdate = await _todocontroller.updatetodo(
+                        completed: ischecked, id: widget.id);
                     if (isUpdate) {
                       // print(widget.id);
                       SnackBar snackBar = const SnackBar(
@@ -60,7 +64,6 @@ class _Todo_Tile_WidgetState extends State<Todo_Tile_Widget> {
                               color: Colors.green,
                             )),
                       );
-
                       ScaffoldMessenger.of(context).showSnackBar(snackBar);
                     } else {
                       SnackBar snackBar = const SnackBar(
@@ -74,7 +77,7 @@ class _Todo_Tile_WidgetState extends State<Todo_Tile_Widget> {
                     }
                   },
                   child: Icon(
-                    ischecked
+                    widget.completed
                         ? Icons.check_circle_rounded
                         : Icons.check_circle_outline,
                     color: customColor(date: "Today"),

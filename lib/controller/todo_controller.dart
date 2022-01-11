@@ -4,9 +4,10 @@ import 'package:http/http.dart' as http;
 import 'package:todoapp/model/todo_model.dart';
 
 class todoController {
+  var client = http.Client();
   Future<List<Todo>> fetchTodo(bool completed) async {
     List<Todo> TodList = [];
-    final response = await http
+    final response = await client
         .get(Uri.parse('https://secondbasetodo.herokuapp.com/todo/$completed'));
 
     if (response.statusCode == 200) {
@@ -58,13 +59,12 @@ class todoController {
 //update data from database
   Future<bool> updatetodo({required bool completed, required String id}) async {
     bool isSucessfull = false;
-     Map<String, bool> body = {"completed": true};
-     Map<String, String> header = {
-       'Content-Type': 'application/json'
-       };
+    Map<String, bool> body = {"completed": completed};
+    Map<String, String> header = {'Content-Type': 'application/json'};
     final response = await http.put(
-      Uri.parse('https://secondbasetodo.herokuapp.com/todo/$id'),
-      body: jsonEncode(body),headers:header);
+        Uri.parse('https://secondbasetodo.herokuapp.com/todo/$id'),
+        body: jsonEncode(body),
+        headers: header);
 
     if (response.statusCode == 200) {
       isSucessfull = true;
@@ -74,5 +74,19 @@ class todoController {
       isSucessfull = false;
     }
     return isSucessfull;
+  }
+
+  Future<bool> deleteTodo({required String id}) async {
+    Map<String, String> header = {'Content-Type': 'application/json'};
+    bool isdeleted = false;
+    final response = await http.delete(
+        Uri.parse('https://secondbasetodo.herokuapp.com/todo/$id'),
+        headers: header);
+    if (response.statusCode == 200) {
+      isdeleted = true;
+    } else {
+      isdeleted = false;
+    }
+    return isdeleted;
   }
 }
